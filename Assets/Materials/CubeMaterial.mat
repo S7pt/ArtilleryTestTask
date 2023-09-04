@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Emitter
-  m_Shader: {fileID: 4800000, guid: 0a4ee37cd22142a4ea71148ce0ac573f, type: 3}
+  m_Name: CubeMaterial
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -56,26 +56,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _ao:
-        m_Texture: {fileID: 2800000, guid: d748f55b75b3e0c4cb5d004d20c77a32, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _normal:
-        m_Texture: {fileID: 2800000, guid: 84605c8ae47d64f47968996ffaf10aed, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _refl:
-        m_Texture: {fileID: 8900000, guid: 08bdb0efc6c5a384495891e5b90c91dd, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _refl_tint_mask:
-        m_Texture: {fileID: 2800000, guid: c19542685d3de184386754a0fcbe9ed1, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _tex:
-        m_Texture: {fileID: 2800000, guid: 2e0184fecf96d0943bed6d09b8553134, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _BumpScale: 1
@@ -94,13 +74,7 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
-    - _emiter_scale: 1.69
-    - _global_scale: 1.42
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 0.15406263, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _color_0: {r: 1, g: 0.030596506, b: 0, a: 1}
-    - _color_1: {r: 0.36756325, g: 1, b: 0, a: 1}
-    - _color_2: {r: 0.41578293, g: 1, b: 0, a: 1}
-    - _refl_tint_scale: {r: 0.66, g: 2.1, b: 1.16, a: 2.83}
   m_BuildTextureStacks: []

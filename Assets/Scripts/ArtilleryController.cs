@@ -5,62 +5,97 @@ using UnityEngine;
 
 public class ArtilleryController : MonoBehaviour
 {
-    private const string ROTATION_PARAMETER = "RotationDirection";
-    private const string SHOOT_TRIGGER = "Shoot";
-	private const int MAXIMAL_VERTICAL_ROTATION = -30;
-	private const int MINIMAL_VERTICAL_ROTATION = 9;
-	private readonly int rotationHash = Animator.StringToHash(ROTATION_PARAMETER);
-    private readonly int shootHash = Animator.StringToHash(SHOOT_TRIGGER);
+	private const string SHOOT_TRIGGER = "Shoot";
+	private readonly int shootHash = Animator.StringToHash(SHOOT_TRIGGER);
 	[SerializeField] private ParticleSystem _muzzleFlashEmitter;
-    [SerializeField] private Animator _artilleryAnimator;
-    [SerializeField] private Transform _gunPivot;
+	[SerializeField] private Animator _artilleryAnimator;
+	[SerializeField] private Transform _gunPivot;
 	[SerializeField] private Transform _gunBasePivot;
-	[SerializeField] private float _horizontalSensitivity = 2;
-	[SerializeField] private float _verticalSensitivity = 2;
+	[SerializeField] private Transform _shellSpawnPoint;
+	[SerializeField] private Rigidbody _shellPrefab;
+	[SerializeField] private ArtilleryRangeDetector _rangeDetector;
+	[SerializeField] private float _gunAngle;
 	[SerializeField] private float _shootingRate = 2;
-	private float _timeOfPreviousShot;
+	[SerializeField] private float _rotationSpeed;
+	private CursorFollower _shootingTarget;
+	private bool _isRotating;
+	private float _velocity;
+	private float _timeOfPreviousShot = 0;
 
-    void Update()
+	private void Start()
 	{
-		HandleMovementInput();
-		HandleShootingInput();
+		_gunPivot.eulerAngles = new Vector3(-_gunAngle, _gunPivot.eulerAngles.y, _gunPivot.eulerAngles.z);
+		_rangeDetector.TargetDetected += OnTargetDetected;
+		_rangeDetector.TargetLost += OnTargetLost;
 	}
 
-	private void HandleShootingInput()
+	void Update()
 	{
-		if(Time.time < _timeOfPreviousShot)
+		HandleRotation();
+		HandleTargetShooting();
+	}
+
+	private void OnTargetDetected(CursorFollower target)
+	{
+		_shootingTarget = target;
+		_isRotating = true;
+	}
+
+	private void OnTargetLost(CursorFollower target)
+	{
+		if (target == _shootingTarget)
+		{
+			_shootingTarget = null;
+		}
+	}
+	private void HandleRotation()
+	{
+		if (_shootingTarget == null)
 		{
 			return;
 		}
-		if (Input.GetMouseButtonDown(0))
-		{
-			_muzzleFlashEmitter.gameObject.SetActive(true);
-			_muzzleFlashEmitter.Play();
-			_artilleryAnimator.SetTrigger(shootHash);
-			_timeOfPreviousShot = Time.time + _shootingRate;
-		}
+		Vector3 directionVector = (_shootingTarget.transform.position - transform.position).normalized;
+		Vector3 direction = new Vector3(directionVector.x, 0, directionVector.z);
+		Vector3 newRotation = Vector3.MoveTowards(_gunBasePivot.forward, direction, Time.deltaTime * _rotationSpeed).normalized;
+		_gunBasePivot.rotation = Quaternion.LookRotation(newRotation);
+		_isRotating = _gunBasePivot.forward != direction;
 	}
 
-	private void HandleMovementInput()
+	private void HandleTargetShooting()
 	{
-		float verticalInput = Input.GetAxisRaw("Vertical");
-		float horizontalInput = Input.GetAxisRaw("Horizontal");
-		_artilleryAnimator.SetFloat(rotationHash, verticalInput);
-		if (verticalInput != 0)
+		if (_shootingTarget == null)
 		{
-			float convertedAngle = _gunPivot.eulerAngles.x;
-			convertedAngle = (convertedAngle > 180) ? convertedAngle - 360 : convertedAngle;
-			float newRotationX = Mathf.Clamp(convertedAngle + (Input.GetAxisRaw("Vertical") * -1 * Time.deltaTime * _verticalSensitivity),
-				MAXIMAL_VERTICAL_ROTATION, MINIMAL_VERTICAL_ROTATION);
-			Vector3 newRotation = new Vector3(newRotationX, _gunPivot.localEulerAngles.y, _gunPivot.localEulerAngles.z);
-			_gunPivot.localEulerAngles = newRotation;
+			return;
 		}
+		if (_isRotating)
+		{
+			return;
+		}
+		Vector3 fromTo = _shootingTarget.transform.position - _shellSpawnPoint.position;
+		Vector3 fromToXZ = new Vector3(fromTo.x, 0, fromTo.z);
+		float x = fromToXZ.magnitude;
+		float y = fromTo.y;
+		_velocity = BallisticCalculations.CalculateVelocity(x, y, _gunAngle);
+		HandleShooting();
+	}
 
-		if (horizontalInput != 0)
+	private void HandleShooting()
+	{
+		if (Time.time < _timeOfPreviousShot)
 		{
-			float newRotationY = _gunBasePivot.localEulerAngles.y + (horizontalInput * _horizontalSensitivity * Time.deltaTime);
-			Vector3 newRotation = new Vector3(_gunBasePivot.localEulerAngles.x, newRotationY, _gunPivot.localEulerAngles.z);
-			_gunBasePivot.localEulerAngles = newRotation;
+			return;
 		}
+		Shoot();
+	}
+
+	private void Shoot()
+	{
+		_muzzleFlashEmitter.gameObject.SetActive(true);
+		_muzzleFlashEmitter.Play();
+		_artilleryAnimator.SetTrigger(shootHash);
+		_timeOfPreviousShot = Time.time + _shootingRate;
+		Rigidbody shell = Instantiate(_shellPrefab, _shellSpawnPoint.position, Quaternion.identity);
+		shell.transform.rotation = _gunPivot.rotation;
+		shell.AddForce(_shellSpawnPoint.forward * _velocity, ForceMode.VelocityChange);
 	}
 }
