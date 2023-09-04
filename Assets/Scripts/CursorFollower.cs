@@ -11,9 +11,9 @@ public class CursorFollower : MonoBehaviour
 
 	private void HandleMouseInput()
 	{
-		Vector3 position = transform.position;
-		position.x += Input.GetAxisRaw("Horizontal") * Time.deltaTime * _moveSpeed;
-		position.z += Input.GetAxisRaw("Vertical") * Time.deltaTime * _moveSpeed;
-		transform.position = position;
+		Vector3 newPosition = transform.position;
+		newPosition.x += Input.GetAxisRaw("Horizontal") * Time.deltaTime * _moveSpeed;
+		newPosition.z += Input.GetAxisRaw("Vertical") * Time.deltaTime * _moveSpeed;
+		transform.position = newPosition;
 	}
 }

@@ -48,6 +48,7 @@ public class ArtilleryController : MonoBehaviour
 			_shootingTarget = null;
 		}
 	}
+
 	private void HandleRotation()
 	{
 		if (_shootingTarget == null)
