@@ -35,6 +35,12 @@ public class ArtilleryController : MonoBehaviour
 		HandleTargetShooting();
 	}
 
+	private void OnDestroy()
+	{
+		_rangeDetector.TargetDetected -= OnTargetDetected;
+		_rangeDetector.TargetLost -= OnTargetLost;
+	}
+
 	private void OnTargetDetected(CursorFollower target)
 	{
 		_shootingTarget = target;
